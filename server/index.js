@@ -1,13 +1,17 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import config from 'config';
+import { authRouter } from './routes/auth.routes.js'
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
-const authRouter = require("./routes/auth.routes");
 const app = express();
 const PORT = config.get('port');
 const DB_URL = config.get('db-uri');
 
+app.use(cors());
 app.use(express.json());
+app.use(cookieParser);
 app.use('/api/auth', authRouter);
 
 app.get('/', (req, res) => {
