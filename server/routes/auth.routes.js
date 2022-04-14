@@ -1,25 +1,22 @@
 import Router from 'express';
-import { UserSchema } from '../models/User.js';
-import bcrypt from 'bcryptjs';
-import { check, validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken';
+
+import { body, check, validationResult } from 'express-validator';
 import { userController } from '../controller/userController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = new Router();
 
 router.post('/registration',
-    [
-        check('email', 'Uncorrect email').isEmail(),
-        check('password', 'Password must be longer than 3 and shorter than 12').isLength({ min: 3, max: 12 })
-    ],
+    body('email').isEmail(),
+    body('password').isLength({ min: 3, max: 32 }),
     userController.registration);
 
 
 router.post('/login',userController.login);
 
-router.post('/logout', userController.logout);
+router.get('/logout', userController.logout);
 router.get('/refresh', userController.refresh);
-router.get('/users', userController.getUsers);
+router.get('/users', authMiddleware, userController.getUsers);
 
 
 export const authRouter = router;

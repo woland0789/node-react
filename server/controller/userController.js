@@ -1,29 +1,22 @@
+import { validationResult } from "express-validator";
+import ApiError from "../exceptions/apiError.js";
+import { userService } from "../service/userService.js";
+
 class UserController {
     async registration(req, res, next) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                res.status(400).json({ message: "Invalid request", errors });
+                return next(ApiError.BadRequest('Ошибка валидации', errors.array()));
             }
 
             const { email, password } = req.body;
+            const userData = await userService.registration(email, password);
 
-            const candidate = await UserSchema.findOne({ email });
-
-            if (candidate) {
-                res.status(400).json({ message: `User with email ${email} alrady exist` });
-            }
-
-
-            const hashPassword = await bcrypt.hash(password, 6);
-            const user = new UserSchema({ email, password: hashPassword });
-
-            await user.save();
-
-            return res.json({ message: "User was created" });
+            res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            return res.json(userData);
         } catch (e) {
-            console.log(e.message);
-            res.send({ message: 'Server Error' });
+            next(e);
         }
     }
     
@@ -31,50 +24,40 @@ class UserController {
         try {
             const { email, password } = req.body;
 
-            const user = await UserSchema.findOne({ email });
-
-            if (!user) {
-                return req.status(400).json({ message: "User not found." });
-            }
-
-            const isPasswordValid = bcrypt.compareSync(password, user.password);
-            if (!isPasswordValid) {
-                return res.status(400).json({ message: 'Password is not valid.' });
-            }
-
-            const token = jwt.sign({ id: user.id }, config.get('sercretKey'), { expiresIn: '1h' });
-
-            return res.json({
-                token,
-                user: {
-                    id: user.id,
-                    emial: user.email
-                }
-            });
+            const userData = await userService.login(email, password);
+            res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            return res.json(userData);
         } catch (e) {
-            console.log(e.message);
-            res.send({ message: 'Server Error' });
+            next(e);
         }
     }
     async logout(req, res, next) {
         try {
-
+            const { refreshToken } = req.cookies;
+            const token = await userService.logout(refreshToken);
+            
+            res.clearCookie('refreshToken');
+            return res.json(token);
         } catch (e) {
-
+            next(e);
         }
     }
     async refresh(req, res, next) {
         try {
-
+            const { refreshToken } = req.cookies;
+            const userData = await userService.refresh(refreshToken);
+            res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            return res.json(userData);
         } catch (e) {
-
+            next(e);
         }
     }
     async getUsers(req, res, next) {
         try {
-
+            const users = userService.getAllUsers();
+            res.json(users);
         } catch (e) {
-
+            next(e);    
         }
     }
 }

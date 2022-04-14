@@ -4,15 +4,20 @@ import config from 'config';
 import { authRouter } from './routes/auth.routes.js'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import errorMiddleware from './middlewares/errorMiddleware.js'
 
 const app = express();
 const PORT = config.get('port');
 const DB_URL = config.get('db-uri');
 
-app.use(cors());
 app.use(express.json());
-app.use(cookieParser);
-app.use('/api/auth', authRouter);
+app.use(cookieParser());
+app.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000'
+}));
+app.use('/api', authRouter);
+app.use(errorMiddleware);
 
 app.get('/', (req, res) => {
     res.status(200).json('Server is working23');

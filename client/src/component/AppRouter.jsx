@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { AuthContext } from '../context';
 import { privateRoutes, publicRoutes } from '../router';
+import { observer } from 'mobx-react-lite';
+import { Context } from '../App';
 
 function AppRouter() {
-    const { isAuth } = useContext(AuthContext);
-
+    const { store } = useContext(Context);
+    
     return (
-        isAuth
+        store.isAuth
             ?
             <Routes>
                 {privateRoutes.map(route =>
@@ -23,4 +24,4 @@ function AppRouter() {
     );
 }
 
-export default AppRouter;
+export default observer(AppRouter);

@@ -1,27 +1,29 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context';
+import { observer } from 'mobx-react-lite';
+import { Context } from '../App';
 
 function Navbar() {
-    const { isAuth } = useContext(AuthContext);
-
-    return ( 
+    const { store } = useContext(Context);
+    return (
         <div className='navbar'>
-            {isAuth
-                ?
-                <div className="navbar__links">
-                    <Link to="/users">Пользователи</Link>
-                    <Link to="/posts">Посты</Link>
-                </div>
-                :
-                <div className="navbar__links">
-                    <Link to="/login">Вход</Link>
-                    <Link to="/registration">Регистрация</Link>
-                </div>
-        }
-            
-        </div>
-     );
+            {
+                store.isAuth
+                    ?
+                    <div className="navbar__links">
+                        <Link to="/users" className="navbar__link">Пользователи</Link>
+                        <Link to="/posts" className="navbar__link">Посты</Link>
+                        <div onClick={() => store.logout()} className="navbar__link">Выйти</div>
+                    </div>
+                    
+                    :
+                    <div className="navbar__links">
+                        <Link to="/login">Вход</Link>
+                        <Link to="/registration">Регистрация</Link>
+                    </div>
+            }
+        </div >
+    );
 }
 
-export default Navbar;
+export default observer(Navbar);

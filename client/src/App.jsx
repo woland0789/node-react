@@ -1,23 +1,36 @@
-import React, { useState } from 'react';
+import React, { createContext, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom'
 import Navbar from './component/Navbar';
 import AppRouter from './component/AppRouter';
-import { AuthContext } from './context';
+import Store from './store/store.js';
+import { observer } from 'mobx-react-lite';
+
+export const store = new Store();
+export const Context = createContext({ store });
+
 
 function App() {
-    const [isAuth, setIsAuth] = useState(false);
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            store.checkAuth();
+        }
+    }, [])
 
     return (
-        <AuthContext.Provider value={{
-            isAuth,
-            setIsAuth
+        <Context.Provider value={{
+            store
         }}>
-            <BrowserRouter>
-                <Navbar />
-                <AppRouter />
-            </BrowserRouter>
-        </AuthContext.Provider>
+            {store.isLoading
+                ?
+                <div>Загрузка...</div>
+                :
+                <BrowserRouter>
+                    <Navbar />
+                    <AppRouter />
+                </BrowserRouter>
+            }
+        </Context.Provider>
     );
 }
 
-export default App;
+export default observer(App);
