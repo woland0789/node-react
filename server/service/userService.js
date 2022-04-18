@@ -5,14 +5,14 @@ import UserDto from "../dtos/userDto.js";
 import ApiError from "../exceptions/apiError.js";
 
 class UserService{
-    async registration(email, password) {
+    async registration(email, password, firstName, lastName) {
         const candidate = await UserModel.findOne({ email });
         if (candidate) {
             throw ApiError.BadRequest(`Пользователь с email ${email} уже существует.`);
         }
 
         const hachPassword = await bcrypt.hash(password, 3); 
-        const user = await UserModel.create({ email, password: hachPassword });
+        const user = await UserModel.create({ email, password: hachPassword, firstName, lastName });
 
         const userDto = new UserDto(user);
 

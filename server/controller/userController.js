@@ -1,6 +1,7 @@
 import { validationResult } from "express-validator";
 import ApiError from "../exceptions/apiError.js";
 import { userService } from "../service/userService.js";
+import UserDto from "../dtos/userDto.js";
 
 class UserController {
     async registration(req, res, next) {
@@ -10,8 +11,8 @@ class UserController {
                 return next(ApiError.BadRequest('Ошибка валидации', errors.array()));
             }
 
-            const { email, password } = req.body;
-            const userData = await userService.registration(email, password);
+            const { email, password, firstName, lastName } = req.body;
+            const userData = await userService.registration(email, password, firstName, lastName);
 
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
             return res.json(userData);
@@ -19,7 +20,7 @@ class UserController {
             next(e);
         }
     }
-    
+
     async login(req, res, next) {
         try {
             const { email, password } = req.body;
@@ -35,7 +36,7 @@ class UserController {
         try {
             const { refreshToken } = req.cookies;
             const token = await userService.logout(refreshToken);
-            
+
             res.clearCookie('refreshToken');
             return res.json(token);
         } catch (e) {
@@ -54,10 +55,10 @@ class UserController {
     }
     async getUsers(req, res, next) {
         try {
-            const users = userService.getAllUsers();
-            res.json(users);
+            const users = await userService.getAllUsers();
+            res.json(users.map(x => new UserDto(x)));
         } catch (e) {
-            next(e);    
+            next(e);
         }
     }
 }

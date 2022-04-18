@@ -23,35 +23,43 @@ export default class Store{
         this.isLoading = bool;
     }
 
-    async login(email, password) {
+    async login(email, password, callback) {
         try {
             const response = await AuthService.login(email, password);
             localStorage.setItem('token', response.data.accessToken);
             this.setAuth(true);
             this.setUser(response.data.user);
+            if (typeof callback === 'function') {
+                callback();
+            }
         } catch (e) {
             console.log(e.response?.data?.message);
         }
     }
 
-    async registration(email, password) {
+    async registration(email, password, callback) {
         try {
             const response = await AuthService.registration(email, password);
             localStorage.setItem('token', response.data.accessToken);
             this.setAuth(true);
             this.setUser(response.data.user);
+            if (typeof callback === 'function') {
+                callback();
+            }
         } catch (e) {
             console.log(e.response?.data?.message);
         }
     }
 
-    async logout() {
+    async logout(callback) {
         try {
             await AuthService.logout();
             localStorage.removeItem('token');
-            console.log(this);
             this.setAuth(false);
             this.setUser({});
+            if (typeof callback === 'function') {
+                callback();
+            }
         } catch (e) {
             console.log(e);
         }

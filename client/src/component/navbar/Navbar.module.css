@@ -1,0 +1,15 @@
+.logo {
+    float: left;
+    margin: 0 10px;
+}
+
+.logo h1 {
+    color: beige;
+    margin: 0;
+}
+
+.menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
