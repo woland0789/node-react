@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import config from 'config';
-import { authRouter } from './routes/auth.routes.js'
+import { router } from './routes/routes.js'
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import errorMiddleware from './middlewares/errorMiddleware.js'
@@ -16,7 +16,7 @@ app.use(cors({
     credentials: true,
     origin: 'http://localhost:3000'
 }));
-app.use('/api', authRouter);
+app.use('/api', router);
 app.use(errorMiddleware);
 
 app.get('/', (req, res) => {

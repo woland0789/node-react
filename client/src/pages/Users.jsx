@@ -10,8 +10,9 @@ function Users() {
     const [users, setUsers] = useState();
 
     return (
-        <div className='App'>
-            <UserList users={users} title="Пользователи" />
+        <div >
+            <h1 style={{ textAlign: 'center' }}>Пользователи</h1>
+            <UserList users={users} />
         </div>
     );
 }

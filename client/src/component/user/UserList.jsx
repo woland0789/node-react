@@ -26,10 +26,7 @@ function UserList({ users, title, ...props }) {
         },
     ]
     return (
-        <div>
-            <h1 style={{ textAlign: 'center' }}>{title}</h1>
-            <Table columns={columns} dataSource={users} />
-        </div>
+        <Table columns={columns} dataSource={users} rowKey="id" size="middle"/>
     );
 }
 

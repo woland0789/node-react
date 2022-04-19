@@ -6,25 +6,29 @@ function Expenses() {
             data: '01-04-2022',
             amount: 2000,
             note: 'test note',
-            category: 'Продукты'
+            category: 'Продукты',
+            id: 1
         },
         {
             data: '02-04-2022',
             amount: 49,
             note: 'test note',
-            category: 'Здоровье'
+            category: 'Здоровье',
+            id: 2
         },
         {
             data: '03-04-2022',
             amount: 368,
             note: 'test note',
-            category: 'Налог'
+            category: 'Налог',
+            id: 3
         },
         {
             data: '04-04-2022',
             amount: 500,
             note: 'test note',
-            category: 'Собака'
+            category: 'Собака',
+            id: 4
         }
     ];
     const columns = [
@@ -47,18 +51,10 @@ function Expenses() {
     ]
     return (
         <>
-            <Row>
-                <Col>
-                    <h1>Расходы</h1>
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    <Table dataSource={data} columns={columns}>
+            <h1 style={{ textAlign: 'center' }}>Расходы</h1>
+            <Table dataSource={data} columns={columns} rowKey="id" size="middle">
 
-                    </Table>
-                </Col>
-            </Row>
+            </Table>
         </>
     );
 }

@@ -6,8 +6,8 @@ import Posts from '../pages/Posts.jsx';
 import Users from '../pages/Users.jsx';
 import Login from '../pages/Login.jsx';
 import Registration from '../pages/Registration.jsx';
-import ProtectedRoutes from './ProtectedRoutes';
 import Expenses from '../pages/Expenses';
+import Category from '../pages/Category';
 
 function AppRouter() {
     const { store } = useContext(Context);
@@ -20,6 +20,7 @@ function AppRouter() {
                     <Route path="/admin/users" element={<Users />} />
                     <Route path="/posts" element={<Posts />} />
                     <Route path="/expenses" element={<Expenses />} />
+                    <Route path="/categories" element={<Category />} />
                 </>
                 :
                 <>
