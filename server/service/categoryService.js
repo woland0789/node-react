@@ -1,3 +1,4 @@
+import ApiError from "../exceptions/apiError.js";
 import { CategoryModel } from "../models/Category.js";
 
 class CategoryService{
@@ -7,7 +8,7 @@ class CategoryService{
         return tmp;
     }
 
-    async editCategories(category) {
+    async editCategory(category) {
         if (category.id !== 0) {
             const dbCategory = await CategoryModel.findById(category.id);
             dbCategory.name = category.name;
@@ -17,6 +18,10 @@ class CategoryService{
             const newCategory = await CategoryModel.create({ name: category.name });
             return { id: newCategory._id, name: newCategory.name };
         }
+    }
+
+    async removeCategory(id) {
+        return await CategoryModel.deleteOne({ _id: id });
     }
 }
 

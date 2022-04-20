@@ -1,6 +1,5 @@
-import { Button, Table, Input, Form } from 'antd';
+import { Button, Table, Input, Form, notification, Space } from 'antd';
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import CategoryService from '../services/CategoryService';
 
 function Category() {
@@ -12,11 +11,6 @@ function Category() {
     const [editRow, setEditRow] = useState();
     const [form] = Form.useForm();
     const columns = [
-        {
-            dataIndex: 'id',
-            title: 'id',
-            key: 'id'
-        },
         {
             dataIndex: 'name',
             title: 'Наименование',
@@ -44,7 +38,7 @@ function Category() {
                         </Button>
                     }
                     {editRow === record.id && <Button type="link" htmlType="submit">Save</Button>}
-                    {editRow !== record.id && <Button type="link">Delete</Button>}
+                    {editRow !== record.id && <Button type="link" onClick={() => deleteRow(record)}>Delete</Button>}
                 </>
             ),
         },
@@ -56,22 +50,21 @@ function Category() {
     }
 
     const onSubmit = (values) => {
-        CategoryService.edit({ ...values, id: editRow }).then(response => {
-            
-            if (!response.data) {
-                //TODO: показать нотификацию
-                return;
-            }
-            const updatedData = [...data];
-            const currentRow = updatedData.find(x => x.id === editRow);
-            console.log(response.data, currentRow);
-            if (currentRow) {
-                currentRow.name = response.data.name;
-                currentRow.id = response.data.id;
-            }
-            setData(updatedData);
-            setEditRow(null);
-        });
+        CategoryService.edit({ ...values, id: editRow })
+            .then(response => {
+                if (!response.data) {
+                    return;
+                }
+                const updatedData = [...data];
+                const currentRow = updatedData.find(x => x.id === editRow);
+                if (currentRow) {
+                    currentRow.name = response.data.name;
+                    currentRow.id = response.data.id;
+                }
+                setData(updatedData);
+            })
+            .catch(errorHandler)
+            .finally(() => { setEditRow(null); });
     }
 
     const addRow = () => {
@@ -82,8 +75,30 @@ function Category() {
         setData(newData);
         initEditRow(newRow);
     }
+
+    const deleteRow = (record) => {
+        CategoryService.remove(record.id)
+            .then(response => {
+                const updatedData = [...data];
+                const deletedRowIndex = updatedData.findIndex(x => x.id === record.id);
+                if (deletedRowIndex !== -1) {
+                    updatedData.splice(deletedRowIndex, 1);
+                }
+                setData(updatedData);
+            })
+            .catch(errorHandler)
+    }
+
+    const errorHandler = error => {
+        notification.error({
+            message: error.message,
+            description: error.response?.data?.message,
+            placement: 'top'
+        });
+    }
+
     return (
-        <>
+        <Space direction='vertical'>
             <h1 style={{ textAlign: 'center' }}>Категории</h1>
             <Form form={form} onFinish={onSubmit}>
                 <Table dataSource={data} columns={columns} rowKey="id" size="middle">
@@ -91,7 +106,7 @@ function Category() {
                 </Table>
             </Form>
             <Button onClick={addRow}>Add</Button>
-        </>
+        </Space>
     );
 }
 

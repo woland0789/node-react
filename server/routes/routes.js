@@ -22,5 +22,6 @@ apiRouter.get('/users', authMiddleware, userController.getUsers);
 
 apiRouter.get('/categories', authMiddleware, categoryController.getCategories);
 apiRouter.post('/categories/edit', authMiddleware, categoryController.editCategory);
+apiRouter.delete('/categories/:id', authMiddleware, categoryController.removeCategory);
 
 export const router = apiRouter;
