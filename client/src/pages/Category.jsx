@@ -1,4 +1,4 @@
-import { Button, Table, Input, Form, notification, Space } from 'antd';
+import { Button, Table, Input, Form, notification, Space, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import CategoryService from '../services/CategoryService';
 
@@ -26,6 +26,26 @@ function Category() {
             }
         },
         {
+            dataIndex: 'type',
+            title: 'Тип',
+            key: 'type',
+            render: (text, record) => {
+                if (editRow === record.id) {
+                    return <Form.Item name="type" rules={[{ required: false, message: "Необходимо выбрать тип" }]} style={{ marginBottom: 0 }}>
+                        <Select defaultValue={"expense"}>
+                            <Select.Option value="expense">Расходы</Select.Option>
+                            <Select.Option value="income">Доходы</Select.Option>
+                        </Select>
+                    </Form.Item>;
+                } else {
+                    return <Select bordered={false} value={record.type} disabled showArrow={false} >
+                        <Select.Option value="expense">Расходы</Select.Option>
+                        <Select.Option value="income">Доходы</Select.Option>
+                    </Select>;
+                }
+            }
+        },
+        {
             title: '',
             key: 'action',
             render: (text, record) => (
@@ -47,6 +67,7 @@ function Category() {
     const initEditRow = (record) => {
         setEditRow(record.id);
         form.setFieldsValue({ name: record.name });
+        form.setFieldsValue({ type: record.type });
     }
 
     const onSubmit = (values) => {
@@ -59,6 +80,7 @@ function Category() {
                 const currentRow = updatedData.find(x => x.id === editRow);
                 if (currentRow) {
                     currentRow.name = response.data.name;
+                    currentRow.type = response.data.type;
                     currentRow.id = response.data.id;
                 }
                 setData(updatedData);

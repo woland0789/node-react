@@ -1,22 +1,23 @@
 import ApiError from "../exceptions/apiError.js";
 import { CategoryModel } from "../models/Category.js";
+import CategoryDto from "../dtos/categoryDto.js";
 
 class CategoryService{
     async getAllCategories() {
         const categoiries = await CategoryModel.find();
-        const tmp = categoiries.map(x => { return { name: x.name, id: x._id } });
-        return tmp;
+        return categoiries.map(x => { return new CategoryDto(x) });
     }
 
     async editCategory(category) {
         if (category.id !== 0) {
             const dbCategory = await CategoryModel.findById(category.id);
             dbCategory.name = category.name;
+            dbCategory.type = category.type;
             const editedCategory = await dbCategory.save();
-            return { id: editedCategory.id, name: editedCategory.name };
+            return new CategoryDto(dbCategory);
         } else {
-            const newCategory = await CategoryModel.create({ name: category.name });
-            return { id: newCategory._id, name: newCategory.name };
+            const newCategory = await CategoryModel.create({ name: category.name, type: category.type });
+            return new CategoryDto(newCategory);
         }
     }
 

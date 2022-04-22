@@ -4,15 +4,15 @@
     box-sizing: border-box;
 }
 
-#root{
+#root {
     height: inherit;
 }
 
-.layout{
+.layout {
     height: inherit;
 }
 
-.post{
+.post {
     display: flex;
     border: 2px solid teal;
     padding: 15px;
