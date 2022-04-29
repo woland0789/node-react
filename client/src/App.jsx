@@ -4,12 +4,11 @@ import AppRouter from './component/AppRouter';
 import Store from './store/store.js';
 import { observer } from 'mobx-react-lite';
 import MainNavbar from './component/navbar/MainNavbar.jsx';
-import 'antd/dist/antd.css';
+import 'antd/dist/antd.min.css';
 import { Layout } from 'antd';
 
 export const store = new Store();
 export const Context = createContext({ store });
-
 
 function App() {
     useEffect(() => {

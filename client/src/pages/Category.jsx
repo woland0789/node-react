@@ -1,5 +1,6 @@
 import { Button, Table, Input, Form, notification, Space, Select } from 'antd';
 import { useEffect, useState } from 'react';
+import CrudActions from '../component/UI/table/CrudActions';
 import CategoryService from '../services/CategoryService';
 
 function Category() {
@@ -32,7 +33,7 @@ function Category() {
             render: (text, record) => {
                 if (editRow === record.id) {
                     return <Form.Item name="type" rules={[{ required: false, message: "Необходимо выбрать тип" }]} style={{ marginBottom: 0 }}>
-                        <Select defaultValue={"expense"}>
+                        <Select >
                             <Select.Option value="expense">Расходы</Select.Option>
                             <Select.Option value="income">Доходы</Select.Option>
                         </Select>
@@ -50,15 +51,7 @@ function Category() {
             key: 'action',
             render: (text, record) => (
                 <>
-                    {editRow !== record.id &&
-                        <Button
-                            type="link"
-                            onClick={() => initEditRow(record)}>
-                            Edit
-                        </Button>
-                    }
-                    {editRow === record.id && <Button type="link" htmlType="submit">Save</Button>}
-                    {editRow !== record.id && <Button type="link" onClick={() => deleteRow(record)}>Delete</Button>}
+                    <CrudActions record={record} editRow={editRow} initEditRow={initEditRow} deleteRow={deleteRow}/>
                 </>
             ),
         },
@@ -67,7 +60,7 @@ function Category() {
     const initEditRow = (record) => {
         setEditRow(record.id);
         form.setFieldsValue({ name: record.name });
-        form.setFieldsValue({ type: record.type });
+        form.setFieldsValue({ type: record.type || "expense" });
     }
 
     const onSubmit = (values) => {
