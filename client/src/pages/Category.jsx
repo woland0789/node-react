@@ -1,6 +1,7 @@
-import { Button, Table, Input, Form, notification, Space, Select } from 'antd';
+import { Button, Table, Input, Form, notification, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import CrudActions from '../component/UI/table/CrudActions';
+import SelectCategory from '../component/UI/table/SelectCategory';
 import CategoryService from '../services/CategoryService';
 
 function Category() {
@@ -11,6 +12,11 @@ function Category() {
 
     const [editRow, setEditRow] = useState();
     const [form] = Form.useForm();
+    const categoryOptions = [
+        { text: 'Расходы', value: 'expense' },
+        { text: 'Доходы', value: 'income' }
+    ];
+
     const columns = [
         {
             dataIndex: 'name',
@@ -30,28 +36,14 @@ function Category() {
             dataIndex: 'type',
             title: 'Тип',
             key: 'type',
-            render: (text, record) => {
-                if (editRow === record.id) {
-                    return <Form.Item name="type" rules={[{ required: false, message: "Необходимо выбрать тип" }]} style={{ marginBottom: 0 }}>
-                        <Select >
-                            <Select.Option value="expense">Расходы</Select.Option>
-                            <Select.Option value="income">Доходы</Select.Option>
-                        </Select>
-                    </Form.Item>;
-                } else {
-                    return <Select bordered={false} value={record.type} disabled showArrow={false} >
-                        <Select.Option value="expense">Расходы</Select.Option>
-                        <Select.Option value="income">Доходы</Select.Option>
-                    </Select>;
-                }
-            }
+            render: (text, record) => (<SelectCategory record={record} editRow={editRow} options={categoryOptions} fieldName="type" />)
         },
         {
             title: '',
             key: 'action',
             render: (text, record) => (
                 <>
-                    <CrudActions record={record} editRow={editRow} initEditRow={initEditRow} deleteRow={deleteRow}/>
+                    <CrudActions record={record} editRow={editRow} initEditRow={initEditRow} deleteRow={deleteRow} />
                 </>
             ),
         },
@@ -116,7 +108,7 @@ function Category() {
         <Space direction='vertical'>
             <h1 style={{ textAlign: 'center' }}>Категории</h1>
             <Form form={form} onFinish={onSubmit}>
-                <Table dataSource={data} columns={columns} rowKey="id" size="middle">
+                <Table dataSource={data} columns={columns} rowKey="id" size="small">
 
                 </Table>
             </Form>

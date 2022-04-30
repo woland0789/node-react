@@ -2,6 +2,7 @@ import Router from 'express';
 
 import { body } from 'express-validator';
 import { categoryController } from '../controller/categoryController.js';
+import { expenseController } from '../controller/expenseController.js';
 import { userController } from '../controller/userController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 
@@ -24,4 +25,7 @@ apiRouter.get('/categories', authMiddleware, categoryController.getCategories);
 apiRouter.post('/categories/edit', authMiddleware, categoryController.editCategory);
 apiRouter.delete('/categories/:id', authMiddleware, categoryController.removeCategory);
 
-export const router = apiRouter;
+apiRouter.get('/expenses', authMiddleware, expenseController.getExpenses);
+apiRouter.post('/expense', authMiddleware, expenseController.editExpense);
+
+export const router = apiRouter; 

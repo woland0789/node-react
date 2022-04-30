@@ -1,42 +1,31 @@
-import { Space, Table, DatePicker, Form, InputNumber } from 'antd';
-import { useState } from 'react';
+import { Space, Table, DatePicker, Form, InputNumber, Input, Button, notification } from 'antd';
+import { useEffect, useState } from 'react';
 import CrudActions from '../component/UI/table/CrudActions';
 import moment from 'moment';
+import SelectCategory from '../component/UI/table/SelectCategory';
+import ExpenseService from '../services/ExpenseService';
+import CategoryService from '../services/CategoryService';
 
 function Expenses() {
     const [editableRow, setEditableRow] = useState(null);
     const [form] = Form.useForm();
+    const [data, setData] = useState();
+    const [categories, setCategories] = useState();
+    useEffect(() => {
+        CategoryService.fetch()
+            .then(response => setCategories(response.data))
+            .then(() => ExpenseService
+                .fetch()
+                .then(response =>
+                    setData(response.data.map(x => {
+                        console.log(moment(x.date));
+                        return { ...x, date: moment(x.date) }
+                    }))
+                )
+            );
+    }, []);
 
-    const data = [
-        {
-            date: new Date(),
-            amount: 2000,
-            note: 'test note',
-            category: 'Продукты',
-            id: 1
-        },
-        {
-            date: new Date(),
-            amount: 49,
-            note: 'test note',
-            category: 'Здоровье',
-            id: 2
-        },
-        {
-            date: new Date(),
-            amount: 368,
-            note: 'test note',
-            category: 'Налог',
-            id: 3
-        },
-        {
-            date: new Date(),
-            amount: 500,
-            note: 'test note',
-            category: 'Собака',
-            id: 4
-        }
-    ];
+
     const columns = [
         {
             dataIndex: 'date',
@@ -48,7 +37,7 @@ function Expenses() {
                         <DatePicker onChange={(date) => record.date = date} format="DD.MM.YYYY" />
                     </Form.Item>;
                 } else {
-                    return record.date.toLocaleDateString();
+                    return record.date.format('DD.MM.YYYY');
                 }
             }
         },
@@ -71,12 +60,25 @@ function Expenses() {
         {
             dataIndex: 'note',
             key: 'note',
-            title: 'Примечание'
+            title: 'Примечание',
+            width: '300px',
+            render: (text, record) => {
+                if (isEditable(record)) {
+                    return <Form.Item name="note" style={{ marginBottom: 0 }}>
+                        <Input />
+                    </Form.Item>
+                } else {
+                    return text;
+                }
+            }
         },
         {
-            dataIndex: 'category',
-            key: 'category',
-            title: 'Категория'
+            dataIndex: 'categoryId',
+            key: 'categoryId',
+            title: 'Категория',
+            render: (text, record) => (
+                <SelectCategory record={record} editRow={editableRow} options={getCategorySelectOptions(categories)} fieldName="categoryId" />
+            )
         },
         {
             title: '',
@@ -95,8 +97,10 @@ function Expenses() {
 
     const initEditRow = (record) => {
         setEditableRow(record.id);
-        console.log(record.amount);
-        form.setFieldsValue({ amount: record.amount, date: moment(record.date, 'DD.MM.YYYY') });
+        form.setFieldsValue({
+            ...record,
+            date: moment(record.date, 'DD.MM.YYYY')
+        });
     }
 
     const deleteRow = (record) => {
@@ -104,15 +108,67 @@ function Expenses() {
     }
 
     const onSubmit = (values) => {
-
+        ExpenseService.edit({ ...values, id: editableRow })
+            .then(response => {
+                if (!response.data) {
+                    return;
+                }
+                const updatedData = [...data];
+                const currentRow = updatedData.find(x => x.id === editableRow);
+                if (currentRow) {
+                    currentRow.date = values.date;
+                    currentRow.amount = values.amount;
+                    currentRow.note = values.note;
+                    currentRow.categoryId = values.categoryId;
+                    currentRow.id = response.data.id;
+                }
+                setData(updatedData);
+            })
+            .catch(errorHandler)
+            .finally(() => { setEditableRow(null); });
     }
+
+    const errorHandler = error => {
+        notification.error({
+            message: error.message,
+            description: error.response?.data?.message,
+            placement: 'top'
+        });
+    }
+
+    const getCategorySelectOptions = categoryDtos => {
+        return categoryDtos.map(dto => {
+            return { text: dto.name, value: dto.id };
+        });
+    }
+
+    const addRow = () => {
+        const newData = [...data];
+        const id = 0;
+        const newRow = {
+            date: new Date(),
+            amount: 0,
+            note: '',
+            categoryId: getCategorySelectOptions(categories)[0]?.id,
+            id
+        };
+        newData.push(newRow);
+        setData(newData);
+        initEditRow(newRow);
+    }
+
     return (
         <Space direction="vertical">
             <h1 style={{ textAlign: 'center' }}>Расходы</h1>
             <Form form={form} onFinish={onSubmit}>
-                <Table dataSource={data} columns={columns} rowKey="id" size="middle" bordered={true}>
-
-                </Table>
+                <Table
+                    dataSource={data}
+                    columns={columns}
+                    rowKey="id"
+                    size="small"
+                    bordered={true}
+                    footer={() => <Button type="link" onClick={addRow}>Add</Button>}
+                />
             </Form>
         </Space>
     );
